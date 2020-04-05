@@ -56,11 +56,29 @@ wasde_selection = wasde.loc[mask_wasde]
 avhrr_selection = avhrr.loc[mask_avhrr]
 modis_selection = modis.loc[mask_modis]
 # %% Select a random county
+corn_county = (corn['GEOID'] == '17109')
 avhrr_county = (avhrr_selection['GEOID'] == '17109')
 modis_county = (modis_selection['GEOID'] == '17109')
+county_corn = corn[corn_county]
 county_avhrr = avhrr_selection[avhrr_county]
 county_modis = modis_selection[modis_county]
-county_modis.head(10)
-
-
+county_corn.head(10)
+# %%
+y = county_corn['Value']
+def determinePeriod(x):
+    if x <= 15: 
+        return 'a'
+    if x > 15: 
+        return 'b'
+# Avhrr        
+county_avhrr['position'] = county_avhrr['day'].apply(determinePeriod)
+county_avhrr['period'] = county_avhrr['month'].astype(str) + county_avhrr['position']
+x_avhrr = county_avhrr[['ndvi', 'year', 'period']]
+x_avhrr = x_avhrr.pivot(index='year', columns='period', values='ndvi')
+# Modis
+county_modis['position'] = county_modis['day'].apply(determinePeriod)
+county_modis['period'] = county_modis['month'].astype(str) + county_modis['position']
+x_modis = county_modis[['NDVI', 'year', 'period']]
+x_modis = x_modis.pivot(index='year', columns='period', values='NDVI')
+x_modis.head(10)
 # %%
